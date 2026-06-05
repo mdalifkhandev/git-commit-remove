@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Commit Deleter</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/dist/tabler-icons.min.css"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f5f5f0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        color: #1a1a1a;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 520px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .header p {
+        font-size: 13px;
+        color: #666;
+        line-height: 1.5;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+
+      .field {
+        margin-bottom: 1rem;
+      }
+      .field:last-child {
+        margin-bottom: 0;
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      label i {
+        font-size: 14px;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        outline: none;
+        background: #fafafa;
+        color: #1a1a1a;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        font-family: inherit;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: #999;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+        background: #fff;
+      }
+
+      input::placeholder {
+        color: #bbb;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid #f0f0f0;
+        margin: 1rem 0;
+      }
+
+      .warn-box {
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        color: #92400e;
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        line-height: 1.5;
+      }
+
+      .warn-box i {
+        font-size: 16px;
+        margin-top: 1px;
+        flex-shrink: 0;
+      }
+
+      .btn-delete {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        background: #dc2626;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+        font-family: inherit;
+      }
+
+      .btn-delete:hover {
+        background: #b91c1c;
+      }
+      .btn-delete:active {
+        transform: scale(0.98);
+      }
+      .btn-delete:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .progress-card {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        display: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+
+      .progress-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #999;
+        padding: 5px 0;
+      }
+
+      .step i {
+        font-size: 16px;
+      }
+      .step.active {
+        color: #2563eb;
+      }
+      .step.done {
+        color: #16a34a;
+      }
+      .step.fail {
+        color: #dc2626;
+      }
+
+      .status-box {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 1rem;
+        display: none;
+        line-height: 1.6;
+        display: none;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .status-box i {
+        font-size: 16px;
+        margin-top: 1px;
+        flex-shrink: 0;
+      }
+      .status-box.info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+      }
+      .status-box.success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #15803d;
+      }
+      .status-box.error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+      }
+
+      code {
+        background: rgba(0, 0, 0, 0.08);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      .spin {
+        animation: spin 1s linear infinite;
+        display: inline-block;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .toggle-pass {
+        position: relative;
+      }
+      .toggle-pass input {
+        padding-right: 38px;
+      }
+      .toggle-pass button {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #999;
+        font-size: 16px;
+        padding: 0;
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1><i class="ti ti-git-commit"></i> GitHub Commit Deleter</h1>
+        <p>
+          Commit ID দাও — সেই commit এর পরের সব কিছু delete হয়ে যাবে এবং branch
+          সেই commit এ ফিরে যাবে
+        </p>
+      </div>
+
+      <div class="warn-box">
+        <i class="ti ti-alert-triangle"></i>
+        <span
+          >এটা <strong>force push</strong> করবে। Commit history চিরতরে পরিবর্তন
+          হবে। নিশ্চিত হয়ে করো।</span
+        >
+      </div>
+
+      <div id="statusBox" class="status-box"></div>
+
+      <div class="card">
+        <div class="field">
+          <label><i class="ti ti-key"></i> GitHub Personal Access Token</label>
+          <div class="toggle-pass">
+            <input
+              type="password"
+              id="token"
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+            />
+            <button onclick="togglePass()" title="show/hide">
+              <i class="ti ti-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field">
+          <label><i class="ti ti-user"></i> GitHub Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="mdalifkhandev"
+            value="mdalifkhandev"
+          />
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field">
+          <label><i class="ti ti-database"></i> Repository Name</label>
+          <input type="text" id="repo" placeholder="phixels-web" />
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field">
+          <label><i class="ti ti-git-branch"></i> Branch Name</label>
+          <input type="text" id="branch" placeholder="main" value="main" />
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field">
+          <label
+            ><i class="ti ti-git-commit"></i> যে Commit এ ফিরে যেতে চাও</label
+          >
+          <input
+            type="text"
+            id="commitsha"
+            placeholder="35f0efca9ce46b4428ac9c3f5d038e765c9af2bf"
+          />
+          <p style="font-size: 11px; color: #aaa; margin-top: 5px">
+            এই commit টা থাকবে — তার পরের সব delete হবে
+          </p>
+        </div>
+      </div>
+
+      <div class="progress-card" id="progressCard">
+        <div class="progress-title">Progress</div>
+        <div class="step" id="s1"><i class="ti ti-circle"></i> Token যাচাই</div>
+        <div class="step" id="s2">
+          <i class="ti ti-circle"></i> Repository খোঁজা
+        </div>
+        <div class="step" id="s3">
+          <i class="ti ti-circle"></i> Commit যাচাই
+        </div>
+        <div class="step" id="s4"><i class="ti ti-circle"></i> Force push</div>
+      </div>
+
+      <button class="btn-delete" id="deleteBtn" onclick="runDelete()">
+        <i class="ti ti-trash"></i> Commit Delete করো
+      </button>
+    </div>
+
+    <script>
+      function togglePass() {
+        const inp = document.getElementById("token");
+        const icon = document.getElementById("eyeIcon");
+        if (inp.type === "password") {
+          inp.type = "text";
+          icon.className = "ti ti-eye-off";
+        } else {
+          inp.type = "password";
+          icon.className = "ti ti-eye";
+        }
+      }
+
+      function setStep(id, state, text) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const icons = {
+          active: '<i class="ti ti-loader spin"></i>',
+          done: '<i class="ti ti-circle-check"></i>',
+          fail: '<i class="ti ti-circle-x"></i>',
+          "": '<i class="ti ti-circle"></i>',
+        };
+        el.className = "step " + state;
+        el.innerHTML = (icons[state] || icons[""]) + " " + text;
+      }
+
+      function showStatus(type, msg) {
+        const box = document.getElementById("statusBox");
+        const icons = {
+          info: "ti-info-circle",
+          success: "ti-circle-check",
+          error: "ti-alert-circle",
+        };
+        box.className = "status-box " + type;
+        box.style.display = "flex";
+        box.innerHTML = `<i class="ti ${icons[type] || "ti-info-circle"}"></i><span>${msg}</span>`;
+        box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      async function apiCall(url, method, token, body) {
+        const opts = {
+          method: method || "GET",
+          headers: {
+            Authorization: "token " + token,
+            Accept: "application/vnd.github.v3+json",
+            "Content-Type": "application/json",
+          },
+        };
+        if (body) opts.body = JSON.stringify(body);
+        const res = await fetch(url, opts);
+        const data = await res.json();
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      async function runDelete() {
+        const token = document.getElementById("token").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const repo = document.getElementById("repo").value.trim();
+        const branch = document.getElementById("branch").value.trim();
+        const commitSha = document.getElementById("commitsha").value.trim();
+
+        document.getElementById("statusBox").style.display = "none";
+
+        if (!token || !username || !repo || !branch || !commitSha) {
+          showStatus("error", "সব field পূরণ করো।");
+          return;
+        }
+
+        if (commitSha.length < 7) {
+          showStatus("error", "Commit SHA কমপক্ষে ৭ character হওয়া দরকার।");
+          return;
+        }
+
+        const btn = document.getElementById("deleteBtn");
+        btn.disabled = true;
+
+        const progressCard = document.getElementById("progressCard");
+        progressCard.style.display = "block";
+
+        setStep("s1", "active", "Token যাচাই করছি...");
+        setStep("s2", "", "Repository খোঁজা");
+        setStep("s3", "", "Commit যাচাই");
+        setStep("s4", "", "Force push");
+
+        try {
+          // Step 1: Token
+          const userRes = await apiCall(
+            "https://api.github.com/user",
+            "GET",
+            token,
+          );
+          if (!userRes.ok) {
+            setStep("s1", "fail", "Token কাজ করছে না!");
+            showStatus(
+              "error",
+              'Token ভুল বা expired। নতুন token বানাও: <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a>',
+            );
+            btn.disabled = false;
+            return;
+          }
+          setStep("s1", "done", `Token ঠিক আছে (${userRes.data.login})`);
+
+          // Step 2: Repo
+          setStep("s2", "active", "Repository খুঁজছি...");
+          const repoRes = await apiCall(
+            `https://api.github.com/repos/${username}/${repo}`,
+            "GET",
+            token,
+          );
+          if (!repoRes.ok) {
+            setStep("s2", "fail", "Repository পাওয়া যায়নি!");
+            showStatus(
+              "error",
+              `"<strong>${repo}</strong>" নামে কোনো repository নেই, অথবা access নেই।`,
+            );
+            btn.disabled = false;
+            return;
+          }
+          setStep("s2", "done", `Repository পাওয়া গেছে: ${repo}`);
+
+          // Step 3: Commit
+          setStep("s3", "active", "Commit যাচাই করছি...");
+          const commitRes = await apiCall(
+            `https://api.github.com/repos/${username}/${repo}/commits/${commitSha}`,
+            "GET",
+            token,
+          );
+          if (!commitRes.ok) {
+            setStep("s3", "fail", "Commit পাওয়া যায়নি!");
+            showStatus(
+              "error",
+              "Commit SHA ভুল। GitHub এ গিয়ে সঠিক SHA copy করো।",
+            );
+            btn.disabled = false;
+            return;
+          }
+          const msg = commitRes.data.commit?.message || "";
+          const shortSha = commitSha.substring(0, 8);
+          setStep(
+            "s3",
+            "done",
+            `Commit পাওয়া গেছে: "${msg.substring(0, 35)}..."`,
+          );
+
+          // Step 4: Force push
+          setStep("s4", "active", "Force push করছি...");
+          const pushRes = await apiCall(
+            `https://api.github.com/repos/${username}/${repo}/git/refs/heads/${branch}`,
+            "PATCH",
+            token,
+            { sha: commitSha, force: true },
+          );
+
+          if (!pushRes.ok) {
+            setStep("s4", "fail", "Force push fail!");
+            const errMsg = pushRes.data.message || "Unknown error";
+            showStatus("error", `Push fail হয়েছে: ${errMsg}`);
+            btn.disabled = false;
+            return;
+          }
+
+          setStep("s4", "done", "Force push সফল!");
+          showStatus(
+            "success",
+            `সফল! <strong>${repo}</strong> এর <strong>${branch}</strong> branch এখন <code>${shortSha}...</code> commit এ আছে। পরের সব commit delete হয়ে গেছে।`,
+          );
+        } catch (err) {
+          showStatus(
+            "error",
+            "Network error: " +
+              err.message +
+              "<br>Internet connection check করো।",
+          );
+        }
+
+        btn.disabled = false;
+      }
+    </script>
+  </body>
+</html>
